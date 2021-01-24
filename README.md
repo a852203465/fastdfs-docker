@@ -2,9 +2,11 @@
 
 Usage:
 
-`docker build -t a852203465/fastdfs .`
+ `docker build -t a852203465/fastdfs .`
 or
-`docker pull a852203465/fastdfs`
+ `docker pull a852203465/fastdfs`
+or
+ `docker pull registry.cn-shenzhen.aliyuncs.com/filesystem/fastdfs`
 
 # FastDFS 部署
 
