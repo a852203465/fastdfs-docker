@@ -1,0 +1,22 @@
+version: '3'
+services:
+  tracker:
+    container_name: tracker
+    image: a852203465/fastdfs
+    command: tracker
+    network_mode: host
+    environment:
+      - PORT=22122
+    volumes:
+      - ./fdfs/tracker:/var/fdfs
+  storage0:
+    container_name: storage0
+    image: a852203465/fastdfs
+    command: storage
+    network_mode: host
+    environment:
+      - TRACKER_SERVER=ip:22122
+      - PORT=23000
+      - NGINX_PORT=8080
+    volumes:
+      - ./fdfs/storage0:/var/fdfs

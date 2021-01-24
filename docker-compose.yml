@@ -1,0 +1,66 @@
+version: '3'
+services:
+  proxy:
+    image: nginx:1.14
+    container_name: fdfs-proxy
+    restart: always
+    ports:
+      - 9099:80
+    volumes:
+      - ./proxy:/etc/nginx/conf.d
+      - ./logs:/var/log/nginx
+    networks:
+      - fastdfs_net
+
+  tracker:
+    container_name: tracker
+    image: a852203465/fastdfs
+    command: tracker
+    ports:
+      - 22122:22122
+    volumes:
+      - ./fdfs/tracker:/var/fdfs
+    networks:
+      - fastdfs_net
+
+  storage0:
+    container_name: storage0
+    image: a852203465/fastdfs
+    command: storage
+    expose:
+      - 8080
+    ports:
+      - 23000:23000
+      - "2222:22"
+    environment:
+      - TRACKER_SERVER=192.168.178.128:22122
+      - GROUP_NAME=group1
+      - PORT=23000
+      - GROUP_COUNT=2
+      - SSH_PASSWORD=123456
+    volumes:
+      - ./fdfs/storage0:/var/fdfs
+    networks:
+      - fastdfs_net
+
+  storage1:
+    container_name: storage1
+    image: a852203465/fastdfs
+    command: storage
+    expose:
+      - 8080
+    ports:
+      - 23001:23001
+    environment:
+      - TRACKER_SERVER=192.168.178.128:22122
+      - GROUP_COUNT=2
+      - GROUP_NAME=group2
+      - PORT=23001
+    volumes:
+      - ./fdfs/storage1:/var/fdfs
+    networks:
+      - fastdfs_net
+
+networks:
+  fastdfs_net:
+    external: true
