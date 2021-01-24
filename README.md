@@ -173,12 +173,27 @@ services:
 
 ```
 
-
 # 注意
-
+    
+ docker安装fastdfs碰到storage的IP地址映射宿主地址问题 
  由于使用容器网络模式运行fastdfs client端 上传文件时会提示找不到存储节点，因此需要在client处理该问题
-    - 该问题在java版本的com.github.tobato.fastdfs-client的jar中处理了该问题
-  
+   
+ - 客户端处理：
+   该问题在java版本的com.github.tobato.fastdfs-client的jar中处理了该问题
+ - 服务端处理：
+    - 数据达到172.30.0.4的22122端口记录的源地址是 172.30.0.1，
+        我们只需要修改iptables的NAT表规则，
+        所有转发到172.30.0.4:22122的数据，
+        源地址修改为宿主主机的地址：192.168.178.128，
+        这样storage注册到tracker server时，
+        tracker server获取到storage的ip地址为 192.168.178.128 
+        而不是网关地址172.30.0.1
+    - 使用iptables -L -t nat 查看22122端口的容器IP
+    - iptables -t nat -A POSTROUTING -p tcp -m tcp --dport 22122 -d 172.30.0.4 -j SNAT --to 192.168.178.128  
+    - 重启容器 （一定要）
+    - 使用iptables -L -t nat 查看nat表规则
+    - 重新执行fastdfs-client-java的工程，返回的storage的地址为 192.168.178.128 
+    
  
  
  
