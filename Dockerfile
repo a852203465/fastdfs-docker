@@ -70,7 +70,7 @@ ADD ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key
 ADD ssh_host_rsa_key.pub /etc/ssh/ssh_host_rsa_key.pub
 ADD authorized_keys /root/.ssh/authorized_keys
 
-EXPOSE 22122 23000 ${NGINX_PORT} 22
+#EXPOSE 22122 23000 ${NGINX_PORT} 22
 VOLUME ["$FASTDFS_BASE_PATH", "/etc/fdfs","usr/local/nginx/conf"]
 
 COPY conf/*.* /etc/fdfs/

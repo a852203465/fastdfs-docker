@@ -2,7 +2,7 @@ version: '3'
 services:
   tracker:
     container_name: tracker
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: tracker
     network_mode: host
     environment:
@@ -13,7 +13,7 @@ services:
   # 130.13
   storage0:
     container_name: storage0
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: storage
     network_mode: host
     environment:
@@ -25,7 +25,7 @@ services:
   # 130.14
   storage1:
     container_name: storage1
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: storage
     network_mode: host
     environment:

@@ -1,24 +1,22 @@
 # FastDFS Docker
 
-Usage:
+## 1. Usage:
 
- `docker build -t a852203465/fastdfs .`
+ `docker build -t registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0 .`
 or
- `docker pull a852203465/fastdfs`
-or
- `docker pull registry.cn-shenzhen.aliyuncs.com/filesystem/fastdfs`
+ `docker pull registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0`
 
-# FastDFS 部署
+## 2. FastDFS 部署
 
-## docker 主机模式
+### 2.1  docker 主机模式
     
-### stand-alone
+#### 2.1.1 stand-alone
 ```yaml
 version: '3'
 services:
   tracker:
     container_name: tracker
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: tracker
     network_mode: host
     environment:
@@ -27,7 +25,7 @@ services:
       - .fdfs/tracker:/var/fdfs
   storage0:
     container_name: storage0
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: storage
     network_mode: host
     environment:
@@ -38,13 +36,13 @@ services:
       - ./fdfs/storage0:/var/fdfs
 ```
 
-### cluster
+#### 2.1.2 cluster
 ```yaml
 version: '3'
 services:
   tracker:
     container_name: tracker
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: tracker
     network_mode: host
     environment:
@@ -55,7 +53,7 @@ services:
   # 130.13
   storage0:
     container_name: storage0
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: storage
     network_mode: host
     environment:
@@ -67,7 +65,7 @@ services:
   # 130.14
   storage1:
     container_name: storage1
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: storage
     network_mode: host
     environment:
@@ -78,12 +76,12 @@ services:
       - ./fdfs/storage0:/var/fdfs
 ```
 
-## docker 容器网络模式
+### 2.2 docker 容器网络模式
 
  - 使用docker 容器网络模式部署 fastdfs cluster/stand-alone 增加，减少容器即可
  - 方便访问集群中的图片，因此运行一个nginx 对所有的存储节点文件访问进行代理
 
-### cluster
+#### 2.2.1 cluster
 ```yaml
 version: '3'
 services:
@@ -101,7 +99,7 @@ services:
 
   tracker:
     container_name: tracker
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: tracker
     ports:
       - 22122:22122
@@ -112,7 +110,7 @@ services:
 
   storage0:
     container_name: storage0
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: storage
     expose:
       - 8080
@@ -130,7 +128,7 @@ services:
 
   storage1:
     container_name: storage1
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: storage
     expose:
       - 8080
@@ -151,17 +149,17 @@ networks:
     external: true
 
 ```
-## monitor
+#### 2.3 monitor
 
-`docker run -ti --network=host --name monitor -e TRACKER_SERVER=192.168.1.127:22122 a852203465/fastdfs monitor`
+`docker run -ti --network=host --name monitor -e TRACKER_SERVER=192.168.1.127:22122 registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0 monitor`
 
-## ssh
+#### 2.4 ssh
 ```yaml
 version: '3'
 services:
   tracker:
     container_name: tracker
-    image: a852203465/fastdfs
+    image: registry.cn-shenzhen.aliyuncs.com/a852203465/fastdfs:1.0
     command: tracker
     network_mode: host
     ports:
@@ -175,27 +173,27 @@ services:
 
 ```
 
-# 注意
+## 3. 注意
     
- docker安装fastdfs碰到storage的IP地址映射宿主地址问题 
+### 1. docker安装fastdfs碰到storage的IP地址映射宿主地址问题 
  由于使用容器网络模式运行fastdfs client端 上传文件时会提示找不到存储节点，因此需要在client处理该问题
    
  - 客户端处理：
    该问题在java版本的com.github.tobato.fastdfs-client的jar中处理了该问题
  - 服务端处理：
-    - 数据达到172.30.0.4的22122端口记录的源地址是 172.30.0.1，
-        我们只需要修改iptables的NAT表规则，
-        所有转发到172.30.0.4:22122的数据，
-        源地址修改为宿主主机的地址：192.168.178.128，
-        这样storage注册到tracker server时，
-        tracker server获取到storage的ip地址为 192.168.178.128 
+    - 数据达到172.30.0.4的22122端口记录的源地址是 172.30.0.1，我们只需要修改iptables的NAT表规则，
+        所有转发到172.30.0.4:22122的数据，源地址修改为宿主主机的地址：192.168.178.128，
+        这样storage注册到tracker server时，tracker server获取到storage的ip地址为 192.168.178.128 
         而不是网关地址172.30.0.1
     - 使用iptables -L -t nat 查看22122端口的容器IP
-    - iptables -t nat -A POSTROUTING -p tcp -m tcp --dport 22122 -d 172.30.0.4 -j SNAT --to 192.168.178.128  
+    - 添加 iptables -t nat -A POSTROUTING -p tcp -m tcp --dport 22122 -d 172.30.0.4 -j SNAT --to 192.168.178.128 
+    - 删除 iptables -t nat -D POSTROUTING 7(第几条)
     - 重启容器 （一定要）
     - 使用iptables -L -t nat 查看nat表规则
     - 重新执行fastdfs-client-java的工程，返回的storage的地址为 192.168.178.128 
-    
+
+### 2. tail: cannot open '/var/fdfs/logs/storaged.log' for reading: No such file or directory
+    - 手动创建 vi /var/fdfs/logs/storaged.log 文件即可
  
  
  
